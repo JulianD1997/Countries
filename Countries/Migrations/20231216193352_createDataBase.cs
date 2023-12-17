@@ -5,7 +5,7 @@
 namespace Countries.Migrations
 {
     /// <inheritdoc />
-    public partial class countriesDatabase : Migration
+    public partial class createDataBase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

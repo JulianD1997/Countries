@@ -12,6 +12,8 @@ public class CountryService : ICountryService
     private readonly IMapper _mapper;
     private readonly IRestCountriesService _restCountriesService;
     private readonly CountryDbContext _dbContext;
+    private List<Country> _countries = new List<Country>();
+
     public CountryService(IMapper mapper, IRestCountriesService restCountriesService, CountryDbContext dbContext)
     {
         _mapper = mapper;
@@ -64,10 +66,10 @@ public class CountryService : ICountryService
     public async Task<Detail> GetAll()
     {
         var listCountries = await _dbContext.Countries
-            .Include(c => c.CountryRestaurants)
-            .ThenInclude(cr => cr.Restaurant)
-            .Include(c => c.CountryHotels)
-            .ThenInclude(ch => ch.Hotel).ToListAsync();
+            .Include(r => r.Restaurants)
+            .Include(h => h.Hotels)
+            .OrderBy(c => c.Name).ToListAsync();
+
         if (!listCountries.Any()) {
             return new Detail
             {
@@ -83,6 +85,29 @@ public class CountryService : ICountryService
             Message = "Lista de países.",
             Countries = listCountries
         };
+    }
+    public async Task<Detail> GetContries(int page, int pageSize)
+    {
+        var totalCount = await _dbContext.Countries.CountAsync();
+
+        var countryPerpage = await _dbContext.Countries
+            .OrderBy(c=> c.Name)
+            .Skip((page -1) * pageSize)
+            .Take(pageSize)
+            .Include(r => r.Restaurants)
+            .Include(h => h.Hotels)
+            .ToListAsync();
+        return new Detail
+        {
+            Status = ResponseStatus.Success,
+            IsSuccessful = true,
+            Message = $"Objetos totales : {totalCount}",
+            Countries = countryPerpage
+        };
+    }
+    public Task<Detail> FindObject(string query)
+    {
+
     }
     public async Task<Detail> Update(UpdateCountryDto updateCountry)
     {
@@ -130,7 +155,8 @@ public class CountryService : ICountryService
     }
     public async Task<Detail> AddHotels(AddObjectToCountry countryHotel)
     {
-        var country = await _dbContext.Countries.FirstOrDefaultAsync(c => c.Name.ToLower() == countryHotel.CountryName.ToLower());
+        var country = await _dbContext.Countries.Include(ch => ch.CountryHotels)
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == countryHotel.CountryName.ToLower());
         if (country == null)
         {
             return new Detail
@@ -140,6 +166,7 @@ public class CountryService : ICountryService
                 Message = $"El país {countryHotel.CountryName} no existe."
             };
         }
+
         foreach (int id in countryHotel.Ids)
         {
             var hotel = await _dbContext.Hotels.FirstOrDefaultAsync(h => h.Id == id);
@@ -155,22 +182,24 @@ public class CountryService : ICountryService
             country.CountryHotels.Add(new CountryHotel()
             {
                 CountryId = country.Id,
-                Country = country,
                 HotelId = id,
-                Hotel = hotel
             });
         }
+
         await _dbContext.SaveChangesAsync();
+
         return new Detail
         {
-            Status = ResponseStatus.BadRequest,
-            IsSuccessful = false,
+            Status = ResponseStatus.Success,
+            IsSuccessful = true,
             Message = $"Los hoteles fueron agregados correctamente."
         };
     }
+
     public async Task<Detail> AddRestaurants(AddObjectToCountry countryRestaurant)
     {
-        var country = await _dbContext.Countries.FirstOrDefaultAsync(c => c.Name.ToLower() == countryRestaurant.CountryName.ToLower());
+        var country = await _dbContext.Countries.Include(cr => cr.CountryRestaurants)
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == countryRestaurant.CountryName.ToLower());
         if (country == null)
         {
             return new Detail
@@ -182,7 +211,7 @@ public class CountryService : ICountryService
         }
         foreach (int id in countryRestaurant.Ids)
         {
-            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(h => h.Id == id);
+            var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == id);
             if (restaurant == null)
             {
                 return new Detail
@@ -191,13 +220,12 @@ public class CountryService : ICountryService
                     IsSuccessful = false,
                     Message = $"El id {id} no existe en la tabla Restaurants."
                 };
+                
             }
             country.CountryRestaurants.Add(new CountryRestaurant()
             {
                 CountryId = country.Id,
-                Country = country,
-                RestaurantId = id,
-                Restaurant = restaurant
+                RestaurantId = id
             });
         }
         await _dbContext.SaveChangesAsync();

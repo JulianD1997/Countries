@@ -10,5 +10,7 @@ public class Hotel
     public string Name { get; set; }
     public string Starts { get; set; }
     [JsonIgnore]
+    public List<Country> Countries { get; set; }
+    [JsonIgnore]
     public List<CountryHotel> CountryHotels { get; set; }
 }

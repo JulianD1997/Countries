@@ -125,40 +125,32 @@ namespace Countries.Migrations
 
             modelBuilder.Entity("Countries.Models.CountryHotel", b =>
                 {
-                    b.HasOne("Countries.Models.Country", "Country")
+                    b.HasOne("Countries.Models.Country", null)
                         .WithMany("CountryHotels")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Countries.Models.Hotel", "Hotel")
+                    b.HasOne("Countries.Models.Hotel", null)
                         .WithMany("CountryHotels")
                         .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Country");
-
-                    b.Navigation("Hotel");
                 });
 
             modelBuilder.Entity("CountryRestaurant", b =>
                 {
-                    b.HasOne("Countries.Models.Country", "Country")
+                    b.HasOne("Countries.Models.Country", null)
                         .WithMany("CountryRestaurants")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Countries.Models.Restaurant", "Restaurant")
+                    b.HasOne("Countries.Models.Restaurant", null)
                         .WithMany("CountryRestaurants")
                         .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Country");
-
-                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("Countries.Models.Country", b =>

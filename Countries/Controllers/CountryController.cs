@@ -25,6 +25,14 @@ public class CountryController : ControllerBase
         var response = await _countryService.GetAll();
         return response.IsSuccessful ? Ok(response) : NoContent();
     }
+    [HttpGet("get-countries/")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> GetCountries([FromQuery] int page = 1, int pageSize = 10)
+    {
+        var response = await _countryService.GetContries(page, pageSize);
+        return Ok(response);
+    }
     [HttpPost("save")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Detail), StatusCodes.Status400BadRequest)]
@@ -46,7 +54,7 @@ public class CountryController : ControllerBase
     [ProducesResponseType(typeof(Detail), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddRestaurants(AddObjectToCountry countryRestaurant)
     {
-        var response = await _countryService.AddHotels(countryRestaurant);
+        var response = await _countryService.AddRestaurants(countryRestaurant);
         return response.IsSuccessful ? Ok(response) : BadRequest(response);
     }
     [HttpPut("update")]

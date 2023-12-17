@@ -11,5 +11,7 @@ public class Restaurant
     public string Name { get; set; }
     public string Type { get; set; }
     [JsonIgnore]
+    public List<Country> Countries { get; set; }
+    [JsonIgnore]
     public List<CountryRestaurant> CountryRestaurants { get; set; }
 }
