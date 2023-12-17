@@ -18,7 +18,7 @@ public class HotelService : IHotelService
         _dbContext = dbContext;
         _mapper = mapper;
     }
-
+    //eliminar hotel
     public async Task<Detail> Delete(int id)
     {
         var hotel = await _dbContext.Hotels.FirstOrDefaultAsync(h => h.Id == id);
@@ -40,7 +40,7 @@ public class HotelService : IHotelService
             Message = $"{hotel.Name} eliminado correctamente"
         };
     }
-
+    //obtener todos los hoteles
     public async Task<Detail> GetAll()
     {
         var listHotel = await _dbContext.Hotels.ToListAsync();
@@ -61,7 +61,7 @@ public class HotelService : IHotelService
             Hotels = listHotel
         };
     }
-
+    //guardar un hotel
     public async Task<Detail> Save(RegisterHotelDto hotel)
     {
         var findHotel = await _dbContext.Hotels.FirstOrDefaultAsync(h => h.Name.ToLower() == hotel.Name.ToLower());
@@ -84,7 +84,7 @@ public class HotelService : IHotelService
             Message = $"El hotel {hotel.Name} ya existe."
         };
     }
-
+    //actualizar hotel
     public async Task<Detail> Update(UpdateHotelDto updateHotel)
     {
         var hotel = await _dbContext.Hotels.FirstOrDefaultAsync(h => h.Id == updateHotel.Id);

@@ -17,7 +17,7 @@ public class RestaurantService : IRestaurantService
         _dbContext = dbContext;
         _mapper = mapper;
     }
-
+    //eliminar restaurante
     public async Task<Detail> Delete(int id)
     {
         var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == id);
@@ -39,7 +39,7 @@ public class RestaurantService : IRestaurantService
             Message = $"{restaurant.Name} eliminado correctamente"
         };
     }
-
+    //obtener todos los restaurantes
     public async Task<Detail> GetAll()
     {
         var listRestaurant = await _dbContext.Restaurants.ToListAsync();
@@ -60,7 +60,7 @@ public class RestaurantService : IRestaurantService
             Restaurants= listRestaurant
         };
     }
-
+    //guardar restaurante
     public async Task<Detail> Save(RegisterRestaurantDto restaurant)
     {
         var findRestaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Name.ToLower() == restaurant.Name.ToLower());
@@ -83,7 +83,7 @@ public class RestaurantService : IRestaurantService
             Message = $"El restaurante {restaurant.Name} ya existe."
         };
     }
-
+    //actualizar restaurante
     public async Task<Detail> Update(UpdateRestaurantDto updaterestaurant)
     {
         var restaurant = await _dbContext.Restaurants.FirstOrDefaultAsync(r => r.Id == updaterestaurant.Id);
