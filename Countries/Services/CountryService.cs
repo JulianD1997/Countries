@@ -3,6 +3,7 @@ using Countries.Data;
 using Countries.Models;
 using Countries.Models.Dto;
 using Countries.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Countries.Services;
@@ -39,7 +40,6 @@ public class CountryService : ICountryService
             Message = "La lista de paises ha sido actualizada."
         };
     }
-
     public async Task<Detail> Save(RegisterCountryDto country)
     {
         var findCountry = await _dbContext.Countries.FirstOrDefaultAsync(c => c.Name.ToLower() == country.Name.ToLower());
@@ -62,7 +62,6 @@ public class CountryService : ICountryService
             Message = $"El país {country.Name} ya existe."
         };
     }
-
     public async Task<Detail> GetAll()
     {
         var listCountries = await _dbContext.Countries
@@ -104,10 +103,6 @@ public class CountryService : ICountryService
             Message = $"Objetos totales : {totalCount}",
             Countries = countryPerpage
         };
-    }
-    public Task<Detail> FindObject(string query)
-    {
-
     }
     public async Task<Detail> Update(UpdateCountryDto updateCountry)
     {
@@ -195,7 +190,6 @@ public class CountryService : ICountryService
             Message = $"Los hoteles fueron agregados correctamente."
         };
     }
-
     public async Task<Detail> AddRestaurants(AddObjectToCountry countryRestaurant)
     {
         var country = await _dbContext.Countries.Include(cr => cr.CountryRestaurants)
@@ -236,4 +230,48 @@ public class CountryService : ICountryService
             Message = $"Los restaurantes fueron agregados correctamente."
         };
     }
+    public async Task<Detail> filterObject(
+        string country,
+        string iso,
+        string restaurant,
+        string type,
+        string hotel,
+        string starts)
+    {
+        var query = _dbContext.Countries.AsQueryable();
+        if (country != null)
+        {
+            query = query.Where(c => c.Name.ToLower().Contains(country.ToLower()));
+        }
+        if (iso != null)
+        {
+            query = query.Where(c => c.IsoCode.ToLower().Contains(iso.ToLower()));
+        }
+        query = query.Include(c => c.Restaurants).Include(c => c.Hotels);
+        if (restaurant != null)
+        {
+            query = query.Where(c => c.Restaurants.Any(r => r.Name.ToLower().Contains(restaurant.ToLower())));
+        }
+        if (type != null)
+        {
+            query = query.Where(c => c.Restaurants.Any(r => r.Type.ToLower().Contains(type.ToLower())));
+        }
+        if (hotel != null)
+        {
+            query = query.Where(c => c.Hotels.Any(r => r.Name.ToLower().Contains(hotel.ToLower())));
+        }
+        if (starts != null)
+        {
+            query = query.Where(c => c.Hotels.Any(r => r.Starts.ToLower().Contains(starts.ToLower())));
+        }
+        var filter = await query.ToListAsync();
+        return new Detail
+        {
+            Status = ResponseStatus.Success,
+            IsSuccessful = true,
+            Message = "Consulta realizada",
+            Countries = filter
+        };
+    }
+
 }

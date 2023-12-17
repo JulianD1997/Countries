@@ -13,4 +13,11 @@ public interface ICountryService
     Task<Detail> Delete(string name);
     Task<Detail> AddRestaurants(AddObjectToCountry countryRestaurant);
     Task<Detail> AddHotels(AddObjectToCountry countryHotel);
+    Task<Detail> filterObject(
+        string country,
+        string iso,
+        string restaurant,
+        string type,
+        string hotel,
+        string starts);
 }

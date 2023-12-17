@@ -16,7 +16,12 @@ public class CountryController : ControllerBase
     {
         _countryService = countryService;
     }
-
+    /// <summary>
+    /// Obtener todos los paises del sistema.
+    /// </summary>
+    /// <returns>De vuelve una respuesta que contiene todos los paises con sus respectivos restaurantes y hoteles..</returns>
+    /// <response code="200">Respuesta sastifactoria.</response>
+    /// <response code="204">Respuesta correcta pero no retribuye ningun país.</response>
     [HttpGet("get-all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -25,13 +30,48 @@ public class CountryController : ControllerBase
         var response = await _countryService.GetAll();
         return response.IsSuccessful ? Ok(response) : NoContent();
     }
-    [HttpGet("get-countries/")]
+    /// <summary>
+    /// Obtener paises por medio de paginación.
+    /// </summary>
+    /// <returns>De vuelve una respuesta que contiene una lista de paises de acuerdo a la pagina y al tamaño de la busqueda solicita</returns>
+    /// <remarks>
+    /// Ejemplo request:
+    ///     GET /api/Contry/get-countries?page=1&pageSize=10
+    /// <remarks>
+    /// <response code="200">Respuesta sastifactoria.</response>
+    /// <response code="204">Respuesta correcta pero no retribuye ningun país.</response>
+    [HttpGet("get-countries")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetCountries([FromQuery] int page = 1, int pageSize = 10)
     {
         var response = await _countryService.GetContries(page, pageSize);
         return Ok(response);
+    }
+    /// <summary>
+    /// filtrar informacion.
+    /// </summary>
+    /// <returns>De vuelve una respuesta que contiene una lista de paises por medio de su paginacion y el tamaño de datos</returns>
+    /// <remarks>
+    /// Ejemplo request:
+    ///     GET /api/Contry/countries?page=1&pageSize=10
+    /// <remarks>
+    /// <response code="200">Respuesta sastifactoria.</response>
+    /// <response code="204">Respuesta correcta pero no retribuye ningun país.</response>
+    [HttpGet("countries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> FilterObject(
+        [FromQuery] string country = null,
+        [FromQuery] string iso = null,
+        [FromQuery] string restaurant = null,
+        [FromQuery] string type = null,
+        [FromQuery] string hotel = null,
+        [FromQuery] string starts = null
+        )
+    {
+        var response = await _countryService.filterObject(country, iso, restaurant, type,hotel, starts);
+        return response.IsSuccessful ? Ok(response) : NoContent();
     }
     [HttpPost("save")]
     [ProducesResponseType(StatusCodes.Status200OK)]
